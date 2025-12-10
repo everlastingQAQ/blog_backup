@@ -373,7 +373,7 @@ int main ()
 
 ##### 思路
 
-这里给出一个简洁的思路。维护出一个差分数组后，只需要在差分数组的基础上对于每个d[i]判断合法的d[i - x]是否小于0。若小于0，则可以给d[i]加上d[i - x]，依次遍历，最后加上所有小于0的d[i]的绝对值即是花费能量的最小值。
+这里给出一个另类的思路。对于任意一个v<sub>i</sub>，在（i - x + 1， i）这个区间内若存在v<sub>y</sub>需要增加，则v<sub>i</sub>一定会与v<sub>y</sub>增加相同次数。因此，在维护好一个差分数组后，我们可以考虑对于任意一个d<sub>i</sub>，加上需要做区间加且区间加触及不到d<sub>i</sub>的合法的d<sub>i - x</sub>，最后加上所有小于0的d[i]的绝对值即可
 时间复杂度：O(n);
 
 ##### 代码
@@ -597,4 +597,137 @@ int main ()
 }
 ```
 
-**未完待续
+#### J - 鱼骨挖矿法
+
+##### 题意
+
+给定一个n行m列的二位网格，每个格子的数字代表当前格的矿物价值。首先钒钒会选择第i行作为主矿道，并将主矿道上方和下方的矿道的所有矿物全部采集。再以主矿道为中心，在每个满足j === 2 (mod 3)的j列（分矿道）分别向上向下挖，在挖到第一个矿物时停止挖掘。
+
+挖掘规则：
+- 如果在一次挖掘操作中发现多个矿物，钒钒会将这些矿物同时挖掘。
+- 如果在当前分矿道上挖掘到矿物，钒钒会立即停止挖掘
+- 上下分矿道的挖掘情况相互独立，即：上分矿道的挖掘情况不会影响到下分矿道的挖掘情况。
+
+
+求在以第i行为主矿道时(1 <= i <= n)， 所能挖到的矿物的总价值。
+
+##### 思路
+
+首先，对于每一个主矿道来说，我们可以预处理每一个主矿道的结果。而对于每一个分矿道来说，对于向上的分矿道，我们可以预处理出到每一格时所能挖到的矿物价值，即sup[i][j] = v[i][j] + v[i - 1][j] + v[i][j - 1] + v[i][j + 1]。若sup[i][j] != 0，则up[i][j] = sup[i][j]，否则up[i][j] = up[i - 1][j]。向下的分矿道也是类似的。在每个i行，只需要加上所有合法的up[i - 2][j]和dw[i + 2][j]即可。
+时间复杂度：O(n * m);
+
+##### 代码
+
+``` c++
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ld = long double;
+
+#define fi first
+#define se second
+
+const ll MAXN = 1e8;
+const ld eps = 1e-12;
+const ll mod = 1e9 + 7;
+
+ll n, m;
+
+void solve ()
+{
+	cin >> n >> m;
+    vector <vector <ll> > v(n + 3, vector <ll> (m + 3));
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            cin >> v[i][j];
+        }
+    }
+
+    vector <ll> ss(n + 2, 0);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            ss[i] += v[i][j];
+        }
+    }
+
+    vector <ll> s(n + 2, 0);
+    for (int i = 1; i <= n; i++) {
+        s[i] = ss[i - 1] + ss[i] + ss[i + 1];
+    }
+
+    vector <vector <ll> > sa(n + 2, vector <ll> (m + 2));
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            sa[i][j] = v[i][j] + v[i - 1][j] + v[i][j - 1] + v[i][j + 1];
+        }
+    }
+    vector <vector <ll> > up(n + 2, vector <ll> (m + 2)); 
+    for (int j = 1; j <= m; j++) {
+        for (int i = 1; i <= n; i++) {
+            if (sa[i][j] != 0) {
+                up[i][j] = sa[i][j];
+            }else {
+                up[i][j] = up[i - 1][j];
+            }
+        }
+    }
+
+    vector <vector <ll> > sb(n + 2, vector <ll> (m + 2));
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            sb[i][j] = v[i][j] + v[i + 1][j] + v[i][j - 1] + v[i][j + 1];
+        }
+    }
+    vector <vector <ll> > dw(n + 2, vector <ll> (m + 2)); 
+    for (int j = 1; j <= m; j++) {
+        for (int i = n; i >= 1; i--) {
+            if (sb[i][j] != 0) {
+                dw[i][j] = sb[i][j];
+            }else {
+                dw[i][j] = dw[i + 1][j];
+            }
+        }
+    }
+
+    vector <ll> ans(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        if (i == 1) {
+            ans[i] += s[i];
+            if (n <= 2) continue;
+            for (int j = 2; j <= m; j += 3) {
+                ans[i] += dw[i + 2][j];
+            }
+        }else if (i == n) {
+            ans[i] += s[n];
+            if (n <= 2) continue;
+            for (int j = 2; j <= m; j += 3) {
+                ans[i] += up[i - 2][j];
+            }
+        }else {
+            ans[i] += s[i];
+            if (n <= 2) continue;
+            for (int j = 2; j <= m; j += 3) {
+                ans[i] += up[i - 2][j] + dw[i + 2][j];
+            }
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        cout << ans[i] << ' ';
+    }
+    cout << '\n';
+}
+
+int main ()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int _ = 1;
+	cin >> _;
+	while (_--) {
+		solve();
+	}
+	return 0;
+}
+```
+
