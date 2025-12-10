@@ -650,12 +650,12 @@ void solve ()
         }
     }
 
-    vector <ll> s(n + 2, 0);
+    vector <ll> s(n + 2, 0);//主矿道
     for (int i = 1; i <= n; i++) {
         s[i] = ss[i - 1] + ss[i] + ss[i + 1];
     }
 
-    vector <vector <ll> > sa(n + 2, vector <ll> (m + 2));
+    vector <vector <ll> > sa(n + 2, vector <ll> (m + 2));//上部分矿道
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= m; j++) {
             sa[i][j] = v[i][j] + v[i - 1][j] + v[i][j - 1] + v[i][j + 1];
@@ -672,7 +672,7 @@ void solve ()
         }
     }
 
-    vector <vector <ll> > sb(n + 2, vector <ll> (m + 2));
+    vector <vector <ll> > sb(n + 2, vector <ll> (m + 2));//下部分矿道
     for (int i = 1; i <= n; i++) {
         for (int j = 1; j <= m; j++) {
             sb[i][j] = v[i][j] + v[i + 1][j] + v[i][j - 1] + v[i][j + 1];
@@ -731,3 +731,83 @@ int main ()
 }
 ```
 
+#### K - 大师和他的领域
+
+##### 题意
+
+给定一个数组a和值k，求有多少个区间满足以下要求：
+- 区间中必须包含值k
+- 区间中大于k值的数量必须等于小于k值的数量
+
+##### 思路
+
+我们可以令大于k的值为1，小于k的值为-1，等于k的值为0。维护一个前缀和数组。对于每一个的下标，都往前二分查找相同值且包含值k的最大左边界即可。
+时间复杂度：O(nlogn);
+
+##### 代码
+
+``` c++
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+using ld = long double;
+
+#define fi first
+#define se second
+
+const ll MAXN = 1e8;
+const ld eps = 1e-12;
+const ll mod = 998244353;
+
+ll n, k;
+string s;
+
+void solve ()
+{
+	cin >> n >> k;
+    vector <ll> v(n + 1);   
+    
+    for (int i = 1; i <= n; i++) {
+        cin >> v[i];
+    }
+
+    vector <ll> s(n + 1, 0);
+    for (int i = 1; i <= n; i++) {
+        s[i] = s[i - 1];
+        if (v[i] > k) {
+            s[i]++;
+        }else if (v[i] < k) {
+            s[i]--;
+        }
+    }
+
+    vector <vector<ll> > pos(2 * n + 2);
+    pos[n].push_back(0);
+    ll ans = 0; 
+    ll exist = -1;
+
+    for (int i = 1; i <= n; i++) {
+        pos[s[i] + n].push_back(i);
+        if (v[i] == k) {
+            exist = i;
+        }
+        if (exist != -1) {
+            ans += lower_bound(pos[s[i] + n].begin(), pos[s[i] + n].end(), exist) - pos[s[i] + n].begin();
+        }
+    }
+    cout << ans << '\n';
+
+}
+
+int main ()
+{
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	int _ = 1;
+	cin >> _;
+	while (_--) {
+		solve();
+	}
+	return 0;
+}
+``` 
