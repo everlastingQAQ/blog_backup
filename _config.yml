@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: Blog
 subtitle: ''
 description: ''
 keywords:
-author: John Doe
-language: en
+author: everlasting
+language: zh-CN
 timezone: ''
 
 # URL
@@ -32,7 +32,7 @@ skip_render:
 
 # Writing
 new_post_name: :title.md # File name of new posts
-default_layout: post
+default_layout: false
 titlecase: false # Transform title into titlecase
 external_link:
   enable: true # Open external links in new tab
@@ -46,7 +46,7 @@ future: true
 syntax_highlighter: highlight.js
 highlight:
   line_number: true
-  auto_detect: false
+  auto_detect: true
   tab_replace: ''
   wrap: true
   hljs: false
@@ -63,6 +63,22 @@ index_generator:
   path: ''
   per_page: 10
   order_by: -date
+  layout: index
+
+archive_generator:
+  per_page: 10
+  yearly: true
+  monthly: true
+  daily: false
+  layout: archive
+
+category_generator:
+  per_page: 10
+  layout: page
+
+tag_generator:
+  per_page: 10
+  layout: tagcloud
 
 # Category & Tag
 default_category: uncategorized
@@ -96,9 +112,17 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: redefine
+theme: maupassant
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: 'git'
+  repository: git@github.com:everlastingQAQ/everlastingQAQ.github.io.git
+  branch: main
+
+mathjax: true
+
+search:
+  path: search.xml
+  field: post

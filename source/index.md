@@ -3,5 +3,5 @@ title:
 date: 
 tags: 
 categories: 
-layout: tagcloud
+layout: page
 ---

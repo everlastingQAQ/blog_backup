@@ -3,5 +3,7 @@ title:
 date: 
 tags: 
 categories: 
-layout: tagcloud
+mathjax: true
+layout: page
 ---
+
